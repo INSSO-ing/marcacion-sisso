@@ -13,34 +13,30 @@
         body { font-family: 'Inter', sans-serif; }
         #map { height: 160px; width: 100%; border-radius: 14px; }
         
-        /* Patrón Geométrico de Ingeniería para Fondo de Pantalla Completa */
-        .bg-flayer-ingenieria {
+        /* Configuración del Flyer de Fondo Inteligente y Adaptable */
+        .bg-flayer-corporativo {
             background-color: #f8fafc;
             background-image: 
-                radial-gradient(at 0% 0%, rgba(20, 184, 166, 0.06) 0px, transparent 50%),
-                radial-gradient(at 50% 0%, rgba(14, 165, 233, 0.04) 0px, transparent 50%),
-                radial-gradient(at 100% 100%, rgba(241, 245, 249, 0.8) 0px, transparent 70%),
-                linear-gradient(90deg, rgba(203, 213, 225, 0.15) 1px, transparent 1px),
-                linear-gradient(180deg, rgba(203, 213, 225, 0.15) 1px, transparent 1px);
-            background-size: 100% 100%, 100% 100%, 100% 100%, 30px 30px, 30px 30px;
+                linear-gradient(90deg, rgba(203, 213, 225, 0.12) 1px, transparent 1px),
+                linear-gradient(180deg, rgba(203, 213, 225, 0.12) 1px, transparent 1px),
+                url('logo-insso.png'); 
+            background-repeat: no-repeat, no-repeat, no-repeat;
+            background-position: center, center, center 40px;
+            background-size: 30px 30px, 30px 30px, 380px auto; 
+        }
+
+        @media (max-width: 640px) {
+            .bg-flayer-corporativo {
+                background-size: 30px 30px, 30px 30px, 85% auto;
+                background-position: center, center, center 30px;
+            }
         }
     </style>
 </head>
-<body class="bg-flayer-ingenieria min-h-screen flex flex-col items-center justify-between p-4 selection:bg-teal-500 selection:text-white relative overflow-x-hidden">
-
-    <!-- MARCA CENTRAL EN TODA LA PANTALLA (TEXTO EN EL FLAYER DE FONDO) -->
-    <div class="absolute inset-0 flex flex-col items-center justify-start pt-12 pointer-events-none select-none z-0 px-6 text-center">
-        <h1 class="text-4xl md:text-5xl font-extrabold tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-slate-800 via-teal-950 to-slate-900 drop-shadow-sm uppercase">
-            INSSO
-        </h1>
-        <div class="h-0.5 w-16 bg-gradient-to-r from-teal-500 to-sky-500 my-2 rounded-full"></div>
-        <p class="text-[11px] md:text-xs font-bold tracking-[0.3em] text-slate-400 uppercase">
-            Consultoría e Ingeniería
-        </p>
-    </div>
+<body class="bg-flayer-corporativo min-h-screen flex flex-col items-center justify-between p-4 selection:bg-teal-500 selection:text-white relative overflow-x-hidden">
 
     <!-- CONTENEDOR PRINCIPAL DE LA APLICACIÓN -->
-    <main class="w-full max-w-md bg-white/90 backdrop-blur-md border border-slate-200/80 shadow-2xl rounded-[28px] p-6 mt-36 mb-auto space-y-5 z-10 transition-all">
+    <main class="w-full max-w-md bg-white/85 backdrop-blur-md border border-slate-200/80 shadow-2xl rounded-[28px] p-6 mt-64 mb-auto space-y-5 z-10 transition-all">
         
         <!-- ENCABEZADO INTERNO DE LA APP -->
         <header class="text-center space-y-1">
@@ -49,24 +45,26 @@
             </p>
         </header>
 
-        <!-- SECCIÓN DE FECHA Y HORA EN TIEMPO REAL (RELOJ SÓLO DE GUÍA) -->
-        <section class="bg-slate-50 border border-slate-200/60 rounded-2xl p-4 text-center shadow-inner">
+        <!-- SECCIÓN DE FECHA Y HORA EN TIEMPO REAL -->
+        <section class="bg-slate-50 border border-slate-200/60 rounded-2xl p-4 text-center shadow-inner relative">
             <div id="live-date" class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-0.5">Sincronizando reloj...</div>
             <div id="live-time" class="text-3xl font-bold text-slate-900 font-mono tracking-tight">00:00:00</div>
+            <!-- Indicador visual de red -->
+            <div id="net-status" class="absolute top-2 right-2 text-[9px] font-bold px-2 py-0.5 rounded-full border bg-emerald-50 text-emerald-600 border-emerald-200">CONECTADO</div>
         </section>
 
-        <!-- CUADRÍCULA DE VERIFICACIÓN (MUESTRA EL ESTADO DE ÉXITO CON HORA DE INTERNET) -->
+        <!-- CUADRÍCULA DE VERIFICACIÓN (DINÁMICA PARA ENTRADA Y SALIDA) -->
         <section id="alerta-verificacion" class="hidden transform scale-95 transition-all duration-300">
-            <div class="bg-emerald-500/10 border-2 border-emerald-500/30 rounded-2xl p-4 flex flex-col items-center justify-center text-center space-y-2">
-                <div class="w-10 h-10 bg-emerald-500 text-white rounded-full flex items-center justify-center shadow-md shadow-emerald-200">
+            <div id="contenedor-mensaje" class="bg-emerald-500/10 border-2 border-emerald-500/30 rounded-2xl p-4 flex flex-col items-center justify-center text-center space-y-2">
+                <div id="icono-mensaje" class="w-10 h-10 bg-emerald-500 text-white rounded-full flex items-center justify-center shadow-md shadow-emerald-200">
                     <svg class="h-6 w-6 stroke-white" fill="none" viewBox="0 0 24 24" stroke-width="3">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
                     </svg>
                 </div>
                 <div>
-                    <h3 class="text-emerald-700 font-extrabold text-sm tracking-wide uppercase animate-pulse">¡TURNO ABIERTO EXCELENTEMENTE!</h3>
+                    <h3 id="titulo-verificacion" class="text-emerald-700 font-extrabold text-sm tracking-wide uppercase"></h3>
                     <p id="detalles-verificacion" class="text-xs text-slate-600 font-medium mt-0.5"></p>
-                    <p class="text-[10px] text-emerald-600 font-bold tracking-wide mt-1 uppercase">✓ Hora oficial de servidor validada</p>
+                    <p id="subtitulo-verificacion" class="text-[10px] text-emerald-600 font-bold tracking-wide mt-1 uppercase"></p>
                 </div>
             </div>
         </section>
@@ -100,20 +98,19 @@
 
     </main>
 
-    <!-- PIE DE PÁGINA SIMPLE -->
+    <!-- PIE DE PÁGINA -->
     <footer class="text-[10px] font-semibold text-slate-400 tracking-wider text-center pt-6 z-10 uppercase">
-        &copy; 2026 INSSO Consultoría e Ingeniería.
+        &copy; 2026 INSSO Consultoría en Seguridad y Salud Ocupacional.
     </footer>
 
     <!-- Leaflet JS para el mapa -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     
-    <!-- LÓGICA DE FIREBASE Y GPS -->
+    <!-- LÓGICA DE FIREBASE, GPS Y OFFLINE COOPERATIVO -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
         import { getDatabase, ref, push, serverTimestamp, get } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
 
-        // Configuración de tu base de datos
         const firebaseConfig = {
             databaseURL: "https://marcacion-insso-default-rtdb.firebaseio.com"
         };
@@ -121,38 +118,55 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        // Elementos de la interfaz
         const liveTime = document.getElementById('live-time');
         const liveDate = document.getElementById('live-date');
         const inputEmpleado = document.getElementById('input-empleado');
         const geoStatus = document.getElementById('geo-status');
+        const netStatus = document.getElementById('net-status');
         const btnEntrada = document.getElementById('btn-entrada');
         const btnSalida = document.getElementById('btn-salida');
         
-        // Elementos de la alerta de éxito
         const alertaVerificacion = document.getElementById('alerta-verificacion');
+        const tituloVerificacion = document.getElementById('titulo-verificacion');
         const detallesVerificacion = document.getElementById('detalles-verificacion');
+        const subtituloVerificacion = document.getElementById('subtitulo-verificacion');
+        const contenedorMensaje = document.getElementById('contenedor-mensaje');
+        const iconoMensaje = document.getElementById('icono-mensaje');
 
         let coordenadasActuales = null;
         let map = null;
         let marker = null;
-        let desfaseServidorMs = 0; // Almacena la diferencia de tiempo real de internet
+        let desfaseServidorMs = 0;
+        let estaOnline = navigator.onLine;
 
-        // Opciones de Zona Horaria (Paraguay)
         const OPCIONES_ZONA_HORARIA = { timeZone: 'America/Asuncion' };
 
-        // RECONOCER EL DESFASE DE HORA CON EL SERVIDOR DE FIREBASE (A PRUEBA DE TRAMPAS)
-        // Firebase provee un nodo especial interno que calcula la latencia exacta de internet
-        const referenciaOffset = ref(db, ".info/serverTimeOffset");
-        get(referenciaOffset).then((snapshot) => {
-            desfaseServidorMs = snapshot.val() || 0;
-        });
+        // MONITOREO DE RED EN TIEMPO REAL
+        function actualizarEstadoRed() {
+            estaOnline = navigator.onLine;
+            if (estaOnline) {
+                netStatus.innerText = "CONECTADO";
+                netStatus.className = "absolute top-2 right-2 text-[9px] font-bold px-2 py-0.5 rounded-full border bg-emerald-50 text-emerald-600 border-emerald-200";
+                subirMarcacionesLocalesAatrasadas(); // Si vuelve internet, sube lo pendiente automáticamente
+            } else {
+                netStatus.innerText = "SIN INTERNET (MODO LOCAL)";
+                netStatus.className = "absolute top-2 right-2 text-[9px] font-bold px-2 py-0.5 rounded-full border bg-amber-50 text-amber-600 border-amber-200 animate-pulse";
+            }
+        }
+        window.addEventListener('online', actualizarEstadoRed);
+        window.addEventListener('offline', actualizarEstadoRed);
+        actualizarEstadoRed();
 
-        // RELOJ EN TIEMPO REAL (Calculado sumando el desfase del servidor)
+        // RECONOCER EL DESFASE DE HORA CON EL SERVIDOR
+        if (estaOnline) {
+            get(ref(db, ".info/serverTimeOffset")).then((snapshot) => {
+                desfaseServidorMs = snapshot.val() || 0;
+            }).catch(() => {});
+        }
+
+        // RELOJ EN TIEMPO REAL
         function actualizarReloj() {
-            // Se calcula la hora verdadera combinando el reloj local con el desfase del servidor de internet
             const horaVerdaderaInteligente = new Date(Date.now() + desfaseServidorMs);
-            
             liveTime.innerText = horaVerdaderaInteligente.toLocaleTimeString('es-ES', { ...OPCIONES_ZONA_HORARIA, hour12: false });
             liveDate.innerText = horaVerdaderaInteligente.toLocaleDateString('es-ES', { 
                 ...OPCIONES_ZONA_HORARIA, weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' 
@@ -165,9 +179,7 @@
         function inicializarMapa(lat, lon) {
             if (!map) {
                 map = L.map('map', { zoomControl: false }).setView([lat, lon], 16);
-                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                    attribution: '&copy; OpenStreetMap'
-                }).addTo(map);
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '&copy; OpenStreetMap' }).addTo(map);
                 marker = L.marker([lat, lon]).addTo(map);
             } else {
                 map.setView([lat, lon], 16);
@@ -175,33 +187,61 @@
             }
         }
 
-        // GEOLOCALIZACIÓN GPS ACTIVA
+        // GEOLOCALIZACIÓN GPS (Funciona de forma nativa sin internet)
         if ("geolocation" in navigator) {
             navigator.geolocation.watchPosition((position) => {
                 const lat = position.coords.latitude;
                 const lon = position.coords.longitude;
                 coordenadasActuales = `${lat},${lon}`;
-
                 geoStatus.innerHTML = `<span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span> GPS Activo`;
                 geoStatus.className = "text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200 flex items-center gap-1";
-                
                 btnEntrada.disabled = false;
                 btnSalida.disabled = false;
-
                 inicializarMapa(lat, lon);
             }, (error) => {
-                console.error(error);
                 geoStatus.innerHTML = `⚠️ Error de GPS`;
                 geoStatus.className = "text-[10px] font-bold text-rose-600 bg-rose-50 px-2 py-0.5 rounded-full border border-rose-200 flex items-center gap-1";
-            }, {
-                enableHighAccuracy: true,
-                maximumAge: 0
-            });
-        } else {
-            geoStatus.innerText = "❌ GPS no soportado";
+            }, { enableHighAccuracy: true, maximumAge: 0 });
         }
 
-        // FUNCIÓN ENVIAR MARCACIÓN USANDO EXCLUSIVAMENTE TIEMPO DE INTERNET
+        // MOSTRAR CONFIRMACIÓN VISUAL EN PANTALLA
+        function mostrarAlertaExito(nombre, tipo, hora, esOffline = false) {
+            // Personalizar títulos según el tipo de marcación
+            if (tipo === "ENTRADA") {
+                tituloVerificacion.innerText = "¡TURNO ABIERTO EXCELENTEMENTE!";
+                // Estilo verde esmeralda para entrada
+                contenedorMensaje.className = "bg-emerald-500/10 border-2 border-emerald-500/30 rounded-2xl p-4 flex flex-col items-center justify-center text-center space-y-2";
+                iconoMensaje.className = "w-10 h-10 bg-emerald-500 text-white rounded-full flex items-center justify-center shadow-md shadow-emerald-200";
+                tituloVerificacion.className = "text-emerald-700 font-extrabold text-sm tracking-wide uppercase";
+            } else {
+                tituloVerificacion.innerText = "¡SALIDA REGISTRADA CON ÉXITO!";
+                // Estilo azul/indigo elegante para la salida
+                contenedorMensaje.className = "bg-indigo-500/10 border-2 border-indigo-500/30 rounded-2xl p-4 flex flex-col items-center justify-center text-center space-y-2";
+                iconoMensaje.className = "w-10 h-10 bg-indigo-600 text-white rounded-full flex items-center justify-center shadow-md shadow-indigo-200";
+                tituloVerificacion.className = "text-indigo-700 font-extrabold text-sm tracking-wide uppercase";
+            }
+
+            detallesVerificacion.innerText = `${nombre} • M.: ${tipo} • ${hora} hs`;
+            
+            if (esOffline) {
+                subtituloVerificacion.innerText = "💾 Guardado localmente en memoria (sin internet)";
+                subtituloVerificacion.className = "text-[10px] text-amber-600 font-bold tracking-wide mt-1 uppercase animate-pulse";
+            } else {
+                subtituloVerificacion.innerText = "✓ Hora oficial de servidor validada";
+                subtituloVerificacion.className = "text-[10px] text-emerald-600 font-bold tracking-wide mt-1 uppercase";
+            }
+
+            alertaVerificacion.classList.remove('hidden');
+            setTimeout(() => alertaVerificacion.classList.remove('scale-95'), 10);
+            inputEmpleado.value = "";
+
+            setTimeout(() => {
+                alertaVerificacion.classList.add('scale-95');
+                setTimeout(() => alertaVerificacion.classList.add('hidden'), 300);
+            }, 6000);
+        }
+
+        // GESTIÓN DE MARCACIONES (CON SOPORTE OFFLINE)
         function registrarMarcacion(tipo) {
             const nombre = inputEmpleado.value.trim();
             if (!nombre) {
@@ -209,41 +249,55 @@
                 return;
             }
 
-            // Calculamos los strings de fecha y hora basándonos en la hora corregida de internet
             const tiempoServidorExacto = new Date(Date.now() + desfaseServidorMs);
             const fechaString = tiempoServidorExacto.toLocaleDateString('es-ES', { ...OPCIONES_ZONA_HORARIA, year: 'numeric', month: '2-digit', day: '2-digit' });
             const horaString = tiempoServidorExacto.toLocaleTimeString('es-ES', { ...OPCIONES_ZONA_HORARIA, hour12: false });
 
             const nuevaMarca = {
                 empleado: nombre,
-                empresa: "INSSO CONSULTORIA E INGENIERIA",
+                empresa: "INSSO CONSULTORIA EN SEGURIDAD Y SALUD OCUPACIONAL",
                 tipo: tipo,
                 coordenadas: coordenadasActuales,
                 fecha: fechaString,
                 hora: horaString,
-                timestamp: serverTimestamp() // Sello inalterable de Google
+                timestamp: estaOnline ? serverTimestamp() : Date.now() // Si no hay red usa la marca corregida local
             };
 
-            const nodoRef = ref(db, '/marcaciones_sisso');
-            push(nodoRef, nuevaMarca)
-                .then(() => {
-                    // Acción de Confirmación Visual Verde en pantalla
-                    detallesVerificacion.innerText = `${nombre} • M.: ${tipo} • ${horaString} hs`;
-                    alertaVerificacion.classList.remove('hidden');
-                    setTimeout(() => alertaVerificacion.classList.remove('scale-95'), 10);
+            if (estaOnline) {
+                // Enviar directo a Firebase si hay internet
+                push(ref(db, '/marcaciones_sisso'), nuevaMarca)
+                    .then(() => mostrarAlertaExito(nombre, tipo, horaString, false))
+                    .catch(() => guardarEnLocal(nuevaMarca, horaString)); // Respaldo inmediato si falla la subida
+            } else {
+                // Si está offline de entrada, guardar en memoria del teléfono
+                guardarEnLocal(nuevaMarca, horaString);
+            }
+        }
 
-                    // Limpiar el campo del operario
-                    inputEmpleado.value = "";
+        // GUARDAR EN MEMORIA INTERNA
+        function guardarEnLocal(objetoMarca, horaString) {
+            let pendientes = JSON.parse(localStorage.getItem('insso_pendientes')) || [];
+            pendientes.push(objetoMarca);
+            localStorage.setItem('insso_pendientes', JSON.stringify(pendientes));
+            
+            mostrarAlertaExito(objetoMarca.empleado, objetoMarca.tipo, horaString, true);
+        }
 
-                    // Desvanecer el cartel verde automáticamente a los 6 segundos
-                    setTimeout(() => {
-                        alertaVerificacion.classList.add('scale-95');
-                        setTimeout(() => alertaVerificacion.classList.add('hidden'), 300);
-                    }, 6000);
-                })
-                .catch((err) => {
-                    alert("Error al guardar en base de datos: " + err.message);
-                });
+        // SUBIR AUTOMÁTICAMENTE CUANDO VUELVA INTERNET
+        function subirMarcacionesLocalesAatrasadas() {
+            let pendientes = JSON.parse(localStorage.getItem('insso_pendientes')) || [];
+            if (pendientes.length === 0) return;
+
+            console.log(`Subiendo ${pendientes.length} marcaciones atrasadas almacenadas sin internet...`);
+            
+            pendientes.forEach((marca) => {
+                // Sincronizamos el timestamp original antes de guardarlo en Firebase
+                marca.timestamp = serverTimestamp(); 
+                push(ref(db, '/marcaciones_sisso'), marca);
+            });
+
+            // Limpiamos la cola de almacenamiento local una vez respaldados
+            localStorage.removeItem('insso_pendientes');
         }
 
         btnEntrada.addEventListener('click', () => registrarMarcacion("ENTRADA"));
