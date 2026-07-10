@@ -50,7 +50,7 @@
     </div>
 
     <!-- BLOQUEO OBLIGATORIO DE GPS -->
-    <div id="bloqueo-gps" class="fixed inset-0 bg-slate-950/95 backdrop-blur-md z-40 hidden flex-col items-center justify-center p-6 text-center text-white">
+    <div id="bloqueo-gps" class="fixed inset-0 bg-slate-950/95 backdrop-blur-md z-40 hidden flex flex-col items-center justify-center p-6 text-center text-white">
         <div class="max-w-sm space-y-4">
             <div class="w-16 h-16 bg-rose-600 rounded-full flex items-center justify-center mx-auto shadow-lg shadow-rose-900/30">
                 <svg class="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
@@ -59,7 +59,7 @@
                 </svg>
             </div>
             <h2 class="text-xl font-black uppercase tracking-wide">Acceso Restringido</h2>
-            <p class="text-sm text-slate-400 leading-relaxed font-medium">
+            <p id="texto-bloqueo-gps" class="text-sm text-slate-400 leading-relaxed font-medium">
                 Para utilizar el Sistema de Marcación Digital de <span class="text-white font-bold">INSSO</span>, es obligatorio permitir y activar los permisos de ubicación GPS en su dispositivo móvil.
             </p>
             <div class="pt-2">
@@ -169,6 +169,7 @@
         const btnSalida = document.getElementById('btn-salida');
         const pantallaCarga = document.getElementById('pantalla-carga');
         const bloqueoGps = document.getElementById('bloqueo-gps');
+        const textoBloqueoGps = document.getElementById('texto-bloqueo-gps');
         
         const labelEncabezado = document.getElementById('label-encabezado');
         const cardReloj = document.getElementById('card-reloj');
@@ -191,12 +192,14 @@
 
         const OPCIONES_ZONA_HORARIA = { timeZone: 'America/Asuncion' };
 
+        // DETECTAR SI ES MÓVIL
+        const esDispositivoMovil = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
         // DETONANTE DE MODO OSCURO TRAS DESVANECER LA PANTALLA DE CARGA
         window.addEventListener('load', () => {
             setTimeout(() => {
                 pantallaCarga.classList.add('opacity-0');
                 
-                // MEJORA: Cambio a Colores de Modo Oscuro Corporativo en Caliente
                 cuerpoApp.className = "bg-slate-950 bg-flayer-perfecto min-h-screen flex flex-col items-center justify-between p-4 selection:bg-teal-500 selection:text-white relative overflow-x-hidden";
                 labelEncabezado.className = "text-[11px] font-extrabold uppercase tracking-[0.15em] text-white bg-slate-900/90 border border-slate-700 px-4 py-1.5 rounded-full inline-block mx-auto backdrop-blur-sm shadow-md transition-all";
                 cardReloj.className = "bg-slate-900/95 backdrop-blur-md border border-slate-800 rounded-2xl p-4 text-center shadow-lg relative transition-all";
@@ -259,10 +262,9 @@
             }
         }
 
-        // EVALUACIÓN DE PERMISOS ESTRICTA DE GPS
+        // CONTROL INTELIGENTE DE GEOLOCALIZACIÓN (PC vs TELÉFONO)
         if ("geolocation" in navigator) {
             navigator.geolocation.watchPosition((position) => {
-                // Si el permiso es aceptado y emite coordenadas, oculta bloqueo de seguridad
                 bloqueoGps.classList.add('hidden');
                 bloqueoGps.classList.remove('flex');
 
@@ -276,15 +278,28 @@
                 btnSalida.disabled = false;
                 inicializarMapa(lat, lon);
             }, (error) => {
-                // Bloqueo total si declina o apaga el servicio GPS obligatoriamente
+                if (esDispositivoMovil) {
+                    // EN TELÉFONO SE BLOQUEA CON INSTRUCCIÓN EXPLICITA
+                    textoBloqueoGps.innerHTML = `Para utilizar el Sistema de Marcación Digital de <span class="text-white font-bold">INSSO</span>, es obligatorio activar la ubicación. <br><br><span class="text-amber-400 font-bold">👉 Por favor, deslice hacia abajo su pantalla y active el icono de Ubicación (GPS) en la barra de ajustes rápidos de su teléfono.</span>`;
+                    bloqueoGps.classList.remove('hidden');
+                    bloqueoGps.classList.add('flex');
+                    btnEntrada.disabled = true;
+                    btnSalida.disabled = true;
+                } else {
+                    // EN PC NO BLOQUEA EL ACCESO TOTAL, DA ACCESO DE CORTESÍA POR IP/RED
+                    coordenadasActuales = "-25.2637,-57.5759"; // Coordenadas aproximadas por defecto
+                    geoStatus.innerHTML = `⚠️ Red PC Activa`;
+                    geoStatus.className = "text-[10px] font-bold text-amber-400 bg-slate-900/90 px-2 py-0.5 rounded-full border border-amber-800 flex items-center gap-1 shadow-sm";
+                    btnEntrada.disabled = false;
+                    btnSalida.disabled = false;
+                    inicializarMapa(-25.2637, -57.5759);
+                }
+            }, { enableHighAccuracy: true, timeout: 8000, maximumAge: 0 });
+        } else {
+            if (esDispositivoMovil) {
                 bloqueoGps.classList.remove('hidden');
                 bloqueoGps.classList.add('flex');
-                btnEntrada.disabled = true;
-                btnSalida.disabled = true;
-            }, { enableHighAccuracy: true, maximumAge: 0 });
-        } else {
-            bloqueoGps.classList.remove('hidden');
-            bloqueoGps.classList.add('flex');
+            }
         }
 
         // RESPUESTA NOTIFICACIÓN VISUAL
