@@ -86,8 +86,22 @@
         }
     </style>
 
+    <!-- BARRA SUPERIOR DE INSTALACIÓN (SOLO EN MÓVILES) -->
+    <div id="banner-instalacion" class="w-full max-w-md bg-slate-900/90 backdrop-blur-md border border-slate-800 rounded-xl p-3 flex items-center justify-between shadow-md z-20 hidden mb-2">
+        <div class="flex items-center space-y-0.5 gap-3">
+            <img src="logo-insso.png" alt="Icono App" class="w-8 h-8 rounded-lg bg-white p-1 object-contain">
+            <div>
+                <h4 class="text-xs font-bold text-white uppercase tracking-wide">Instalar Aplicación</h4>
+                <p class="text-[10px] font-medium text-slate-400">Acceso rápido desde tu pantalla</p>
+            </div>
+        </div>
+        <button id="btn-instalar-pwa" class="bg-teal-600 hover:bg-teal-700 active:scale-95 text-white font-bold text-[10px] px-3 py-2 rounded-lg uppercase tracking-wider transition-all shadow-sm">
+            Descargar
+        </button>
+    </div>
+
     <!-- 2. CONTENEDOR PRINCIPAL TOTALMENTE TRANSPARENTE -->
-    <main class="w-full max-w-md bg-transparent space-y-5 z-10 transition-all mt-4 mb-auto">
+    <main class="w-full max-w-md bg-transparent space-y-5 z-10 transition-all mt-2 mb-auto">
         
         <!-- ENCABEZADO INTERNO -->
         <header class="text-center space-y-1">
@@ -193,16 +207,67 @@
         const contenedorMensaje = document.getElementById('contenedor-mensaje');
         const iconoMensaje = document.getElementById('icono-mensaje');
 
+        const bannerInstalacion = document.getElementById('banner-instalacion');
+        const btnInstalarPwa = document.getElementById('btn-instalar-pwa');
+
         let coordenadasActuales = null;
         let map = null;
         let marker = null;
         let desfaseServidorMs = 0;
         let estaOnline = navigator.onLine;
+        let eventoInstalacion = null;
 
         const OPCIONES_ZONA_HORARIA = { timeZone: 'America/Asuncion' };
 
-        // DETECTAR SI ES MÓVIL
+        // DETECTAR SISTEMAS OPERATIVOS Y NAVEGADORES
         const esDispositivoMovil = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        const esIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+        const estaEnModoApp = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+
+        // MANEJO DEL BANNER DE INSTALACIÓN DINÁMICO
+        window.addEventListener('beforeinstallprompt', (e) => {
+            // Previene que Android muestre su banner genérico pequeño e incómodo
+            e.preventDefault();
+            eventoInstalacion = e;
+            
+            // Solo muestra nuestra barra si es móvil y no está instalada ya
+            if (esDispositivoMovil && !estaEnModoApp) {
+                bannerInstalacion.classList.remove('hidden');
+            }
+        });
+
+        // Configuración para iOS Safari que no soporta 'beforeinstallprompt'
+        window.addEventListener('load', () => {
+            if (esDispositivoMovil && esIOS && !estaEnModoApp) {
+                bannerInstalacion.classList.remove('hidden');
+            }
+        });
+
+        // Evento al dar click en el botón de Descargar / Acceso Directo
+        btnInstalarPwa.addEventListener('click', async () => {
+            if (eventoInstalacion) {
+                // Ejecuta la instalación en Android
+                eventoInstalacion.prompt();
+                const { outcome } = await eventoInstalacion.userChoice;
+                if (outcome === 'accepted') {
+                    bannerInstalacion.classList.add('hidden');
+                }
+                eventoInstalacion = null;
+            } else if (esIOS) {
+                // Alerta específica y guiada para iPhone
+                alert("Para instalar en iPhone:\n\n1. Presiona el botón de 'Compartir' de Safari (el icono de un cuadro con una flecha hacia arriba abajo en el centro).\n2. Desliza hacia abajo y selecciona 'Añadir a la pantalla de inicio'.\n3. Presiona 'Añadir' arriba a la derecha.");
+            } else {
+                // Si entra de Chrome móvil pero el prompt se retrasó, indica el menú tradicional de 3 puntos
+                alert("Para instalar el acceso directo:\n\nPresiona los 3 puntitos de tu navegador arriba a la derecha y selecciona 'Instalar aplicación' o 'Añadir a la pantalla de inicio'.");
+            }
+        });
+
+        // Ocultar banner si el usuario ya lo instaló con éxito
+        window.addEventListener('appinstalled', () => {
+            bannerInstalacion.classList.add('hidden');
+            alert("¡Aplicación instalada exitosamente en su pantalla de inicio!");
+        });
+
 
         // DETONANTE DE MODO OSCURO TRAS DESVANECER LA PANTALLA DE CARGA
         window.addEventListener('load', () => {
