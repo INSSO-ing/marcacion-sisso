@@ -13,93 +13,84 @@
         body { font-family: 'Inter', sans-serif; }
         #map { height: 160px; width: 100%; border-radius: 14px; }
         
-        /* Configuración del Flyer de Fondo Inteligente y Adaptable */
-        .bg-flayer-corporativo {
-            background-color: #f8fafc;
-            background-image: 
-                linear-gradient(90deg, rgba(203, 213, 225, 0.12) 1px, transparent 1px),
-                linear-gradient(180deg, rgba(203, 213, 225, 0.12) 1px, transparent 1px),
-                url('logo-insso.png'); 
-            background-repeat: no-repeat, no-repeat, no-repeat;
-            background-position: center, center, center 40px;
-            background-size: 30px 30px, 30px 30px, 380px auto; 
-        }
-
-        @media (max-width: 640px) {
-            .bg-flayer-corporativo {
-                background-size: 30px 30px, 30px 30px, 85% auto;
-                background-position: center, center, center 30px;
-            }
+        /* Ajuste definitivo para que el Logo ocupe TODA la pantalla como Flyer de Fondo */
+        .bg-flayer-pantalla-completa {
+            background-color: #ffffff;
+            background-image: url('logo-insso.png');
+            background-repeat: no-repeat;
+            background-position: center center;
+            background-size: cover; /* Hace que el logo cubra toda la pantalla de forma fluida */
+            background-attachment: fixed; /* Evita que el fondo se mueva al hacer scroll */
         }
     </style>
 </head>
-<body class="bg-flayer-corporativo min-h-screen flex flex-col items-center justify-between p-4 selection:bg-teal-500 selection:text-white relative overflow-x-hidden">
+<body class="bg-flayer-pantalla-completa min-h-screen flex flex-col items-center justify-between p-4 selection:bg-teal-500 selection:text-white relative overflow-x-hidden">
 
-    <!-- CONTENEDOR PRINCIPAL DE LA APLICACIÓN -->
-    <main class="w-full max-w-md bg-white/85 backdrop-blur-md border border-slate-200/80 shadow-2xl rounded-[28px] p-6 mt-64 mb-auto space-y-5 z-10 transition-all">
+    <!-- CONTENEDOR PRINCIPAL TOTALMENTE TRANSPARENTE -->
+    <main class="w-full max-w-md bg-transparent space-y-5 z-10 transition-all mt-4 mb-auto">
         
         <!-- ENCABEZADO INTERNO DE LA APP -->
         <header class="text-center space-y-1">
-            <p class="text-[10px] font-bold uppercase tracking-[0.15em] text-teal-600 bg-teal-50 border border-teal-100 px-3 py-1 rounded-full inline-block mx-auto">
+            <p class="text-[11px] font-extrabold uppercase tracking-[0.15em] text-slate-900 bg-white/80 border border-slate-300 px-4 py-1.5 rounded-full inline-block mx-auto backdrop-blur-sm shadow-sm">
                 Sistema de Marcación Digital
             </p>
         </header>
 
         <!-- SECCIÓN DE FECHA Y HORA EN TIEMPO REAL -->
-        <section class="bg-slate-50 border border-slate-200/60 rounded-2xl p-4 text-center shadow-inner relative">
-            <div id="live-date" class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-0.5">Sincronizando reloj...</div>
-            <div id="live-time" class="text-3xl font-bold text-slate-900 font-mono tracking-tight">00:00:00</div>
+        <section class="bg-white/85 backdrop-blur-md border border-slate-300/80 rounded-2xl p-4 text-center shadow-md relative">
+            <div id="live-date" class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-0.5">Sincronizando reloj...</div>
+            <div id="live-time" class="text-3xl font-extrabold text-slate-900 font-mono tracking-tight">00:00:00</div>
             <!-- Indicador visual de red -->
             <div id="net-status" class="absolute top-2 right-2 text-[9px] font-bold px-2 py-0.5 rounded-full border bg-emerald-50 text-emerald-600 border-emerald-200">CONECTADO</div>
         </section>
 
         <!-- CUADRÍCULA DE VERIFICACIÓN (DINÁMICA PARA ENTRADA Y SALIDA) -->
         <section id="alerta-verificacion" class="hidden transform scale-95 transition-all duration-300">
-            <div id="contenedor-mensaje" class="bg-emerald-500/10 border-2 border-emerald-500/30 rounded-2xl p-4 flex flex-col items-center justify-center text-center space-y-2">
-                <div id="icono-mensaje" class="w-10 h-10 bg-emerald-500 text-white rounded-full flex items-center justify-center shadow-md shadow-emerald-200">
-                    <svg class="h-6 w-6 stroke-white" fill="none" viewBox="0 0 24 24" stroke-width="3">
+            <div id="contenedor-mensaje" class="bg-emerald-500/90 border-2 border-emerald-600 text-white rounded-2xl p-4 flex flex-col items-center justify-center text-center space-y-2 shadow-lg backdrop-blur-md">
+                <div id="icono-mensaje" class="w-10 h-10 bg-white text-emerald-600 rounded-full flex items-center justify-center shadow-md">
+                    <svg class="h-6 w-6 stroke-current" fill="none" viewBox="0 0 24 24" stroke-width="3">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
                     </svg>
                 </div>
                 <div>
-                    <h3 id="titulo-verificacion" class="text-emerald-700 font-extrabold text-sm tracking-wide uppercase"></h3>
-                    <p id="detalles-verificacion" class="text-xs text-slate-600 font-medium mt-0.5"></p>
-                    <p id="subtitulo-verificacion" class="text-[10px] text-emerald-600 font-bold tracking-wide mt-1 uppercase"></p>
+                    <h3 id="titulo-verificacion" class="font-black text-sm tracking-wide uppercase"></h3>
+                    <p id="detalles-verificacion" class="text-xs font-semibold mt-0.5 opacity-90"></p>
+                    <p id="subtitulo-verificacion" class="text-[10px] font-bold tracking-wide mt-1 uppercase opacity-80"></p>
                 </div>
             </div>
         </section>
 
         <!-- CAMPO DEL COLABORADOR -->
         <section class="space-y-1.5">
-            <label for="input-empleado" class="text-xs font-bold uppercase tracking-wider text-slate-400 pl-1">Nombre del Colaborador</label>
-            <input type="text" id="input-empleado" placeholder="Ej. Juan Pérez" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-900 font-medium placeholder:text-slate-400 focus:outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-100 transition-all text-sm shadow-sm">
+            <label for="input-empleado" class="text-xs font-extrabold uppercase tracking-wider text-slate-900 bg-white/60 px-2 py-0.5 rounded backdrop-blur-xs inline-block">Nombre del Colaborador</label>
+            <input type="text" id="input-empleado" placeholder="Ej. Juan Pérez" class="w-full bg-white/90 border border-slate-300 rounded-xl px-4 py-3 text-slate-900 font-bold placeholder:text-slate-400 focus:outline-none focus:border-slate-600 focus:ring-2 focus:ring-slate-200 transition-all text-sm shadow-md">
         </section>
 
         <!-- SECCIÓN DEL MAPA -->
         <section class="space-y-1.5">
-            <div class="flex justify-between items-center pl-1">
-                <label class="text-xs font-bold uppercase tracking-wider text-slate-400">Ubicación GPS Actual</label>
-                <span id="geo-status" class="text-[10px] font-bold text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200 flex items-center gap-1">
+            <div class="flex justify-between items-center px-1">
+                <label class="text-xs font-extrabold uppercase tracking-wider text-slate-900 bg-white/60 px-2 py-0.5 rounded backdrop-blur-xs inline-block">Ubicación GPS Actual</label>
+                <span id="geo-status" class="text-[10px] font-bold text-amber-900 bg-white/80 px-2 py-0.5 rounded-full border border-amber-300 flex items-center gap-1 shadow-sm backdrop-blur-xs">
                     <span class="h-1.5 w-1.5 rounded-full bg-amber-500 animate-pulse"></span> Buscando señal...
                 </span>
             </div>
-            <div id="map" class="border border-slate-200 shadow-sm bg-slate-100"></div>
+            <div id="map" class="border border-slate-300 shadow-md bg-white/50 backdrop-blur-xs"></div>
         </section>
 
         <!-- BOTONES DE ACCIÓN (ENTRADA / SALIDA) -->
         <footer class="grid grid-cols-2 gap-4 pt-1">
-            <button id="btn-entrada" disabled class="disabled:opacity-40 bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white font-bold py-3.5 rounded-xl transition-all shadow-md shadow-emerald-100 flex flex-col items-center justify-center gap-0.5 text-sm">
+            <button id="btn-entrada" disabled class="disabled:opacity-40 bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white font-black py-3.5 rounded-xl transition-all shadow-lg shadow-emerald-900/20 flex flex-col items-center justify-center gap-0.5 text-sm uppercase tracking-wider">
                 <span class="text-base">🛫</span> Registrar Entrada
             </button>
-            <button id="btn-salida" disabled class="disabled:opacity-40 bg-rose-600 hover:bg-rose-700 active:scale-95 text-white font-bold py-3.5 rounded-xl transition-all shadow-md shadow-rose-100 flex flex-col items-center justify-center gap-0.5 text-sm">
+            <button id="btn-salida" disabled class="disabled:opacity-40 bg-rose-600 hover:bg-rose-700 active:scale-95 text-white font-black py-3.5 rounded-xl transition-all shadow-lg shadow-rose-900/20 flex flex-col items-center justify-center gap-0.5 text-sm uppercase tracking-wider">
                 <span class="text-base">🛬</span> Registrar Salida
             </button>
         </footer>
 
     </main>
 
-    <!-- PIE DE PÁGINA -->
-    <footer class="text-[10px] font-semibold text-slate-400 tracking-wider text-center pt-6 z-10 uppercase">
+    <!-- PIE DE PÁGINA SIMPLE EN ALTO CONTRASTE -->
+    <footer class="text-[10px] font-extrabold text-slate-900 bg-white/70 px-4 py-1 rounded-full border border-slate-200 shadow-sm backdrop-blur-xs tracking-wider text-center mt-6 z-10 uppercase">
         &copy; 2026 INSSO Consultoría en Seguridad y Salud Ocupacional.
     </footer>
 
@@ -147,7 +138,7 @@
             if (estaOnline) {
                 netStatus.innerText = "CONECTADO";
                 netStatus.className = "absolute top-2 right-2 text-[9px] font-bold px-2 py-0.5 rounded-full border bg-emerald-50 text-emerald-600 border-emerald-200";
-                subirMarcacionesLocalesAatrasadas(); // Si vuelve internet, sube lo pendiente automáticamente
+                subirMarcacionesLocalesAatrasadas();
             } else {
                 netStatus.innerText = "SIN INTERNET (MODO LOCAL)";
                 netStatus.className = "absolute top-2 right-2 text-[9px] font-bold px-2 py-0.5 rounded-full border bg-amber-50 text-amber-600 border-amber-200 animate-pulse";
@@ -187,48 +178,41 @@
             }
         }
 
-        // GEOLOCALIZACIÓN GPS (Funciona de forma nativa sin internet)
+        // GEOLOCALIZACIÓN GPS
         if ("geolocation" in navigator) {
             navigator.geolocation.watchPosition((position) => {
                 const lat = position.coords.latitude;
                 const lon = position.coords.longitude;
                 coordenadasActuales = `${lat},${lon}`;
                 geoStatus.innerHTML = `<span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span> GPS Activo`;
-                geoStatus.className = "text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200 flex items-center gap-1";
+                geoStatus.className = "text-[10px] font-bold text-emerald-600 bg-white/80 px-2 py-0.5 rounded-full border border-emerald-300 flex items-center gap-1 shadow-sm";
                 btnEntrada.disabled = false;
                 btnSalida.disabled = false;
                 inicializarMapa(lat, lon);
             }, (error) => {
                 geoStatus.innerHTML = `⚠️ Error de GPS`;
-                geoStatus.className = "text-[10px] font-bold text-rose-600 bg-rose-50 px-2 py-0.5 rounded-full border border-rose-200 flex items-center gap-1";
+                geoStatus.className = "text-[10px] font-bold text-rose-600 bg-white/80 px-2 py-0.5 rounded-full border border-rose-300 flex items-center gap-1 shadow-sm";
             }, { enableHighAccuracy: true, maximumAge: 0 });
         }
 
         // MOSTRAR CONFIRMACIÓN VISUAL EN PANTALLA
         function mostrarAlertaExito(nombre, tipo, hora, esOffline = false) {
-            // Personalizar títulos según el tipo de marcación
             if (tipo === "ENTRADA") {
                 tituloVerificacion.innerText = "¡TURNO ABIERTO EXCELENTEMENTE!";
-                // Estilo verde esmeralda para entrada
-                contenedorMensaje.className = "bg-emerald-500/10 border-2 border-emerald-500/30 rounded-2xl p-4 flex flex-col items-center justify-center text-center space-y-2";
-                iconoMensaje.className = "w-10 h-10 bg-emerald-500 text-white rounded-full flex items-center justify-center shadow-md shadow-emerald-200";
-                tituloVerificacion.className = "text-emerald-700 font-extrabold text-sm tracking-wide uppercase";
+                contenedorMensaje.className = "bg-emerald-600 border-2 border-emerald-700 text-white rounded-2xl p-4 flex flex-col items-center justify-center text-center space-y-2 shadow-xl";
+                iconoMensaje.className = "w-10 h-10 bg-white text-emerald-600 rounded-full flex items-center justify-center shadow-md";
             } else {
                 tituloVerificacion.innerText = "¡SALIDA REGISTRADA CON ÉXITO!";
-                // Estilo azul/indigo elegante para la salida
-                contenedorMensaje.className = "bg-indigo-500/10 border-2 border-indigo-500/30 rounded-2xl p-4 flex flex-col items-center justify-center text-center space-y-2";
-                iconoMensaje.className = "w-10 h-10 bg-indigo-600 text-white rounded-full flex items-center justify-center shadow-md shadow-indigo-200";
-                tituloVerificacion.className = "text-indigo-700 font-extrabold text-sm tracking-wide uppercase";
+                contenedorMensaje.className = "bg-indigo-600 border-2 border-indigo-700 text-white rounded-2xl p-4 flex flex-col items-center justify-center text-center space-y-2 shadow-xl";
+                iconoMensaje.className = "w-10 h-10 bg-white text-indigo-600 rounded-full flex items-center justify-center shadow-md";
             }
 
             detallesVerificacion.innerText = `${nombre} • M.: ${tipo} • ${hora} hs`;
             
             if (esOffline) {
-                subtituloVerificacion.innerText = "💾 Guardado localmente en memoria (sin internet)";
-                subtituloVerificacion.className = "text-[10px] text-amber-600 font-bold tracking-wide mt-1 uppercase animate-pulse";
+                subtituloVerificacion.innerText = "💾 Guardado localmente (Sin Internet)";
             } else {
                 subtituloVerificacion.innerText = "✓ Hora oficial de servidor validada";
-                subtituloVerificacion.className = "text-[10px] text-emerald-600 font-bold tracking-wide mt-1 uppercase";
             }
 
             alertaVerificacion.classList.remove('hidden');
@@ -241,7 +225,7 @@
             }, 6000);
         }
 
-        // GESTIÓN DE MARCACIONES (CON SOPORTE OFFLINE)
+        // GESTIÓN DE MARCACIONES
         function registrarMarcacion(tipo) {
             const nombre = inputEmpleado.value.trim();
             if (!nombre) {
@@ -260,21 +244,18 @@
                 coordenadas: coordenadasActuales,
                 fecha: fechaString,
                 hora: horaString,
-                timestamp: estaOnline ? serverTimestamp() : Date.now() // Si no hay red usa la marca corregida local
+                timestamp: estaOnline ? serverTimestamp() : Date.now()
             };
 
             if (estaOnline) {
-                // Enviar directo a Firebase si hay internet
                 push(ref(db, '/marcaciones_sisso'), nuevaMarca)
                     .then(() => mostrarAlertaExito(nombre, tipo, horaString, false))
-                    .catch(() => guardarEnLocal(nuevaMarca, horaString)); // Respaldo inmediato si falla la subida
+                    .catch(() => guardarEnLocal(nuevaMarca, horaString));
             } else {
-                // Si está offline de entrada, guardar en memoria del teléfono
                 guardarEnLocal(nuevaMarca, horaString);
             }
         }
 
-        // GUARDAR EN MEMORIA INTERNA
         function guardarEnLocal(objetoMarca, horaString) {
             let pendientes = JSON.parse(localStorage.getItem('insso_pendientes')) || [];
             pendientes.push(objetoMarca);
@@ -283,20 +264,15 @@
             mostrarAlertaExito(objetoMarca.empleado, objetoMarca.tipo, horaString, true);
         }
 
-        // SUBIR AUTOMÁTICAMENTE CUANDO VUELVA INTERNET
         function subirMarcacionesLocalesAatrasadas() {
             let pendientes = JSON.parse(localStorage.getItem('insso_pendientes')) || [];
             if (pendientes.length === 0) return;
-
-            console.log(`Subiendo ${pendientes.length} marcaciones atrasadas almacenadas sin internet...`);
             
             pendientes.forEach((marca) => {
-                // Sincronizamos el timestamp original antes de guardarlo en Firebase
                 marca.timestamp = serverTimestamp(); 
                 push(ref(db, '/marcaciones_sisso'), marca);
             });
 
-            // Limpiamos la cola de almacenamiento local una vez respaldados
             localStorage.removeItem('insso_pendientes');
         }
 
