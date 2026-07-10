@@ -13,40 +13,79 @@
         body { font-family: 'Inter', sans-serif; }
         #map { height: 160px; width: 100%; border-radius: 14px; }
         
-        /* Ajuste definitivo para que el Logo ocupe TODA la pantalla como Flyer de Fondo */
-        .bg-flayer-pantalla-completa {
-            background-color: #ffffff;
+        /* Ajuste de Fondo Corporativo Inteligente Sin Zoom Extremo */
+        .bg-flayer-perfecto {
+            background-color: #f8fafc;
             background-image: url('logo-insso.png');
             background-repeat: no-repeat;
             background-position: center center;
-            background-size: cover; /* Hace que el logo cubra toda la pantalla de forma fluida */
-            background-attachment: fixed; /* Evita que el fondo se mueva al hacer scroll */
+            background-size: 450px auto; /* Tamaño corporativo equilibrado en PC */
+            background-attachment: fixed;
+        }
+
+        /* En teléfonos disminuye la escala para que el escudo nunca se corte ni se pixele */
+        @media (max-width: 640px) {
+            .bg-flayer-perfecto {
+                background-size: 85% auto; /* Ajuste fluido proporcional al ancho del celular */
+                background-position: center 25%;
+            }
+        }
+
+        /* Animación de pulso suave para el texto de carga */
+        .animar-pulso-lento {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
         }
     </style>
 </head>
-<body class="bg-flayer-pantalla-completa min-h-screen flex flex-col items-center justify-between p-4 selection:bg-teal-500 selection:text-white relative overflow-x-hidden">
+<body class="bg-flayer-perfecto min-h-screen flex flex-col items-center justify-between p-4 selection:bg-teal-500 selection:text-white relative overflow-x-hidden">
 
-    <!-- CONTENEDOR PRINCIPAL TOTALMENTE TRANSPARENTE -->
+    <!-- 1. PANTALLA DE CARGA CORPORATIVA (SPLASH SCREEN) -->
+    <div id="pantalla-carga" class="fixed inset-0 bg-white z-50 flex flex-col items-center justify-center p-6 transition-opacity duration-700 ease-in-out opacity-100">
+        <div class="max-w-xs w-full text-center space-y-6 transform scale-95 animate-fade-in">
+            <!-- Logo oficial en la bienvenida -->
+            <img src="logo-insso.png" alt="INSSO Logo" class="w-48 h-auto mx-auto drop-shadow-md">
+            
+            <!-- Barra de progreso estética simulada -->
+            <div class="w-40 h-1 bg-slate-100 rounded-full mx-auto overflow-hidden">
+                <div class="h-full bg-slate-900 rounded-full animate-[loading_2s_ease-in-out_infinite] w-1/2"></div>
+            </div>
+            
+            <!-- Texto solicitado -->
+            <p class="text-xs font-bold uppercase tracking-[0.2em] text-slate-500 animar-pulso-lento">
+                Cargando sistema de marcación digital...
+            </p>
+        </div>
+    </div>
+
+    <!-- Estilos exclusivos inline para la animación de la barra de carga -->
+    <style>
+        @keyframes loading {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(200%); }
+        }
+    </style>
+
+
+    <!-- 2. CONTENEDOR PRINCIPAL TOTALMENTE TRANSPARENTE -->
     <main class="w-full max-w-md bg-transparent space-y-5 z-10 transition-all mt-4 mb-auto">
         
-        <!-- ENCABEZADO INTERNO DE LA APP -->
+        <!-- ENCABEZADO INTERNO -->
         <header class="text-center space-y-1">
             <p class="text-[11px] font-extrabold uppercase tracking-[0.15em] text-slate-900 bg-white/80 border border-slate-300 px-4 py-1.5 rounded-full inline-block mx-auto backdrop-blur-sm shadow-sm">
                 Sistema de Marcación Digital
             </p>
         </header>
 
-        <!-- SECCIÓN DE FECHA Y HORA EN TIEMPO REAL -->
+        <!-- SECCIÓN DE FECHA Y HORA -->
         <section class="bg-white/85 backdrop-blur-md border border-slate-300/80 rounded-2xl p-4 text-center shadow-md relative">
             <div id="live-date" class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-0.5">Sincronizando reloj...</div>
             <div id="live-time" class="text-3xl font-extrabold text-slate-900 font-mono tracking-tight">00:00:00</div>
-            <!-- Indicador visual de red -->
             <div id="net-status" class="absolute top-2 right-2 text-[9px] font-bold px-2 py-0.5 rounded-full border bg-emerald-50 text-emerald-600 border-emerald-200">CONECTADO</div>
         </section>
 
-        <!-- CUADRÍCULA DE VERIFICACIÓN (DINÁMICA PARA ENTRADA Y SALIDA) -->
+        <!-- CUADRÍCULA DE VERIFICACIÓN DINÁMICA -->
         <section id="alerta-verificacion" class="hidden transform scale-95 transition-all duration-300">
-            <div id="contenedor-mensaje" class="bg-emerald-500/90 border-2 border-emerald-600 text-white rounded-2xl p-4 flex flex-col items-center justify-center text-center space-y-2 shadow-lg backdrop-blur-md">
+            <div id="contenedor-mensaje" class="bg-emerald-600 border-2 border-emerald-700 text-white rounded-2xl p-4 flex flex-col items-center justify-center text-center space-y-2 shadow-xl">
                 <div id="icono-mensaje" class="w-10 h-10 bg-white text-emerald-600 rounded-full flex items-center justify-center shadow-md">
                     <svg class="h-6 w-6 stroke-current" fill="none" viewBox="0 0 24 24" stroke-width="3">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
@@ -70,14 +109,14 @@
         <section class="space-y-1.5">
             <div class="flex justify-between items-center px-1">
                 <label class="text-xs font-extrabold uppercase tracking-wider text-slate-900 bg-white/60 px-2 py-0.5 rounded backdrop-blur-xs inline-block">Ubicación GPS Actual</label>
-                <span id="geo-status" class="text-[10px] font-bold text-amber-900 bg-white/80 px-2 py-0.5 rounded-full border border-amber-300 flex items-center gap-1 shadow-sm backdrop-blur-xs">
+                <span id="geo-status" class="text-[10px] font-bold text-amber-900 bg-white/80 px-2 py-0.5 rounded-full border border-amber-300 flex items-center gap-1 shadow-sm data-blur-xs">
                     <span class="h-1.5 w-1.5 rounded-full bg-amber-500 animate-pulse"></span> Buscando señal...
                 </span>
             </div>
             <div id="map" class="border border-slate-300 shadow-md bg-white/50 backdrop-blur-xs"></div>
         </section>
 
-        <!-- BOTONES DE ACCIÓN (ENTRADA / SALIDA) -->
+        <!-- BOTONES DE ACCIÓN (CON BLOQUEO ANTIDUPLICADOS) -->
         <footer class="grid grid-cols-2 gap-4 pt-1">
             <button id="btn-entrada" disabled class="disabled:opacity-40 bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white font-black py-3.5 rounded-xl transition-all shadow-lg shadow-emerald-900/20 flex flex-col items-center justify-center gap-0.5 text-sm uppercase tracking-wider">
                 <span class="text-base">🛫</span> Registrar Entrada
@@ -89,7 +128,7 @@
 
     </main>
 
-    <!-- PIE DE PÁGINA SIMPLE EN ALTO CONTRASTE -->
+    <!-- PIE DE PÁGINA SIMPLE -->
     <footer class="text-[10px] font-extrabold text-slate-900 bg-white/70 px-4 py-1 rounded-full border border-slate-200 shadow-sm backdrop-blur-xs tracking-wider text-center mt-6 z-10 uppercase">
         &copy; 2026 INSSO Consultoría en Seguridad y Salud Ocupacional.
     </footer>
@@ -97,7 +136,7 @@
     <!-- Leaflet JS para el mapa -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     
-    <!-- LÓGICA DE FIREBASE, GPS Y OFFLINE COOPERATIVO -->
+    <!-- LÓGICA DE FIREBASE, GPS Y SEGURIDAD OPERATIVA -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
         import { getDatabase, ref, push, serverTimestamp, get } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
@@ -116,6 +155,7 @@
         const netStatus = document.getElementById('net-status');
         const btnEntrada = document.getElementById('btn-entrada');
         const btnSalida = document.getElementById('btn-salida');
+        const pantallaCarga = document.getElementById('pantalla-carga');
         
         const alertaVerificacion = document.getElementById('alerta-verificacion');
         const tituloVerificacion = document.getElementById('titulo-verificacion');
@@ -132,7 +172,17 @@
 
         const OPCIONES_ZONA_HORARIA = { timeZone: 'America/Asuncion' };
 
-        // MONITOREO DE RED EN TIEMPO REAL
+        // CONTROLADOR DE LA PANTALLA DE CARGA (SPLASH SCREEN)
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                pantallaCarga.classList.add('opacity-0');
+                setTimeout(() => {
+                    pantallaCarga.style.display = 'none';
+                }, 700); // Remueve el elemento del flujo al terminar el desvanecimiento
+            }, 2500); // 2.5 Segundos de visualización de marca obligatoria
+        });
+
+        // MONITOREO DE RED
         function actualizarEstadoRed() {
             estaOnline = navigator.onLine;
             if (estaOnline) {
@@ -148,14 +198,14 @@
         window.addEventListener('offline', actualizarEstadoRed);
         actualizarEstadoRed();
 
-        // RECONOCER EL DESFASE DE HORA CON EL SERVIDOR
+        // RECONOCER DESFASE CON EL SERVIDOR
         if (estaOnline) {
             get(ref(db, ".info/serverTimeOffset")).then((snapshot) => {
                 desfaseServidorMs = snapshot.val() || 0;
             }).catch(() => {});
         }
 
-        // RELOJ EN TIEMPO REAL
+        // RELOJ CENTRAL
         function actualizarReloj() {
             const horaVerdaderaInteligente = new Date(Date.now() + desfaseServidorMs);
             liveTime.innerText = horaVerdaderaInteligente.toLocaleTimeString('es-ES', { ...OPCIONES_ZONA_HORARIA, hour12: false });
@@ -166,7 +216,7 @@
         setInterval(actualizarReloj, 1000);
         actualizarReloj();
 
-        // INICIALIZACIÓN DEL MAPA
+        // INICIALIZACIÓN MAPA
         function inicializarMapa(lat, lon) {
             if (!map) {
                 map = L.map('map', { zoomControl: false }).setView([lat, lon], 16);
@@ -178,7 +228,7 @@
             }
         }
 
-        // GEOLOCALIZACIÓN GPS
+        // CONTROL GPS
         if ("geolocation" in navigator) {
             navigator.geolocation.watchPosition((position) => {
                 const lat = position.coords.latitude;
@@ -186,6 +236,8 @@
                 coordenadasActuales = `${lat},${lon}`;
                 geoStatus.innerHTML = `<span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span> GPS Activo`;
                 geoStatus.className = "text-[10px] font-bold text-emerald-600 bg-white/80 px-2 py-0.5 rounded-full border border-emerald-300 flex items-center gap-1 shadow-sm";
+                
+                // Activar botones solo si hay GPS coordinado válido
                 btnEntrada.disabled = false;
                 btnSalida.disabled = false;
                 inicializarMapa(lat, lon);
@@ -195,7 +247,7 @@
             }, { enableHighAccuracy: true, maximumAge: 0 });
         }
 
-        // MOSTRAR CONFIRMACIÓN VISUAL EN PANTALLA
+        // RESPUESTA NOTIFICACIÓN VISUAL
         function mostrarAlertaExito(nombre, tipo, hora, esOffline = false) {
             if (tipo === "ENTRADA") {
                 tituloVerificacion.innerText = "¡TURNO ABIERTO EXCELENTEMENTE!";
@@ -217,7 +269,13 @@
 
             alertaVerificacion.classList.remove('hidden');
             setTimeout(() => alertaVerificacion.classList.remove('scale-95'), 10);
+            
+            // Vaciar campo del colaborador
             inputEmpleado.value = "";
+
+            // Reactivar botones tras limpiar la operación e interfaz
+            btnEntrada.disabled = false;
+            btnSalida.disabled = false;
 
             setTimeout(() => {
                 alertaVerificacion.classList.add('scale-95');
@@ -225,13 +283,17 @@
             }, 6000);
         }
 
-        // GESTIÓN DE MARCACIONES
+        // MOTOR DE ACCIONES ASÍNCRONAS
         function registrarMarcacion(tipo) {
             const nombre = inputEmpleado.value.trim();
             if (!nombre) {
                 alert("Por favor, ingrese su nombre antes de marcar.");
                 return;
             }
+
+            // MEJORA IA: Bloqueo de seguridad inmediato contra clics múltiples accidentales
+            btnEntrada.disabled = true;
+            btnSalida.disabled = true;
 
             const tiempoServidorExacto = new Date(Date.now() + desfaseServidorMs);
             const fechaString = tiempoServidorExacto.toLocaleDateString('es-ES', { ...OPCIONES_ZONA_HORARIA, year: 'numeric', month: '2-digit', day: '2-digit' });
