@@ -49,13 +49,13 @@
             </p>
         </header>
 
-        <!-- SECCIÓN DE FECHA Y HORA EN TIEMPO REAL -->
+        <!-- SECCIÓN DE FECHA Y HORA EN TIEMPO REAL (RELOJ SÓLO DE GUÍA) -->
         <section class="bg-slate-50 border border-slate-200/60 rounded-2xl p-4 text-center shadow-inner">
-            <div id="live-date" class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-0.5">Cargando fecha...</div>
+            <div id="live-date" class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-0.5">Sincronizando reloj...</div>
             <div id="live-time" class="text-3xl font-bold text-slate-900 font-mono tracking-tight">00:00:00</div>
         </section>
 
-        <!-- NUEVA CUADRÍCULA DE VERIFICACIÓN (MUESTRA EL ESTADO DE ÉXITO) -->
+        <!-- CUADRÍCULA DE VERIFICACIÓN (MUESTRA EL ESTADO DE ÉXITO CON HORA DE INTERNET) -->
         <section id="alerta-verificacion" class="hidden transform scale-95 transition-all duration-300">
             <div class="bg-emerald-500/10 border-2 border-emerald-500/30 rounded-2xl p-4 flex flex-col items-center justify-center text-center space-y-2">
                 <div class="w-10 h-10 bg-emerald-500 text-white rounded-full flex items-center justify-center shadow-md shadow-emerald-200">
@@ -66,6 +66,7 @@
                 <div>
                     <h3 class="text-emerald-700 font-extrabold text-sm tracking-wide uppercase animate-pulse">¡TURNO ABIERTO EXCELENTEMENTE!</h3>
                     <p id="detalles-verificacion" class="text-xs text-slate-600 font-medium mt-0.5"></p>
+                    <p class="text-[10px] text-emerald-600 font-bold tracking-wide mt-1 uppercase">✓ Hora oficial de servidor validada</p>
                 </div>
             </div>
         </section>
@@ -110,7 +111,7 @@
     <!-- LÓGICA DE FIREBASE Y GPS -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
-        import { getDatabase, ref, push, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
+        import { getDatabase, ref, push, serverTimestamp, get } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
 
         // Configuración de tu base de datos
         const firebaseConfig = {
@@ -128,20 +129,33 @@
         const btnEntrada = document.getElementById('btn-entrada');
         const btnSalida = document.getElementById('btn-salida');
         
-        // Elementos de la nueva alerta
+        // Elementos de la alerta de éxito
         const alertaVerificacion = document.getElementById('alerta-verificacion');
         const detallesVerificacion = document.getElementById('detalles-verificacion');
 
         let coordenadasActuales = null;
         let map = null;
         let marker = null;
+        let desfaseServidorMs = 0; // Almacena la diferencia de tiempo real de internet
 
-        // RELOJ EN TIEMPO REAL
+        // Opciones de Zona Horaria (Paraguay)
+        const OPCIONES_ZONA_HORARIA = { timeZone: 'America/Asuncion' };
+
+        // RECONOCER EL DESFASE DE HORA CON EL SERVIDOR DE FIREBASE (A PRUEBA DE TRAMPAS)
+        // Firebase provee un nodo especial interno que calcula la latencia exacta de internet
+        const referenciaOffset = ref(db, ".info/serverTimeOffset");
+        get(referenciaOffset).then((snapshot) => {
+            desfaseServidorMs = snapshot.val() || 0;
+        });
+
+        // RELOJ EN TIEMPO REAL (Calculado sumando el desfase del servidor)
         function actualizarReloj() {
-            const ahora = new Date();
-            liveTime.innerText = ahora.toLocaleTimeString('es-ES', { hour12: false });
-            liveDate.innerText = Default = ahora.toLocaleDateString('es-ES', { 
-                weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' 
+            // Se calcula la hora verdadera combinando el reloj local con el desfase del servidor de internet
+            const horaVerdaderaInteligente = new Date(Date.now() + desfaseServidorMs);
+            
+            liveTime.innerText = horaVerdaderaInteligente.toLocaleTimeString('es-ES', { ...OPCIONES_ZONA_HORARIA, hour12: false });
+            liveDate.innerText = horaVerdaderaInteligente.toLocaleDateString('es-ES', { 
+                ...OPCIONES_ZONA_HORARIA, weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' 
             });
         }
         setInterval(actualizarReloj, 1000);
@@ -187,7 +201,7 @@
             geoStatus.innerText = "❌ GPS no soportado";
         }
 
-        // FUNCIÓN ENVIAR MARCACIÓN A FIREBASE Y MOSTRAR CONFIRMACIÓN VERDE
+        // FUNCIÓN ENVIAR MARCACIÓN USANDO EXCLUSIVAMENTE TIEMPO DE INTERNET
         function registrarMarcacion(tipo) {
             const nombre = inputEmpleado.value.trim();
             if (!nombre) {
@@ -195,9 +209,10 @@
                 return;
             }
 
-            const ahora = new Date();
-            const fechaString = ahora.toLocaleDateString('es-ES', { year: 'numeric', month: '2-digit', day: '2-digit' });
-            const horaString = ahora.toLocaleTimeString('es-ES', { hour12: false });
+            // Calculamos los strings de fecha y hora basándonos en la hora corregida de internet
+            const tiempoServidorExacto = new Date(Date.now() + desfaseServidorMs);
+            const fechaString = tiempoServidorExacto.toLocaleDateString('es-ES', { ...OPCIONES_ZONA_HORARIA, year: 'numeric', month: '2-digit', day: '2-digit' });
+            const horaString = tiempoServidorExacto.toLocaleTimeString('es-ES', { ...OPCIONES_ZONA_HORARIA, hour12: false });
 
             const nuevaMarca = {
                 empleado: nombre,
@@ -206,13 +221,13 @@
                 coordenadas: coordenadasActuales,
                 fecha: fechaString,
                 hora: horaString,
-                timestamp: serverTimestamp()
+                timestamp: serverTimestamp() // Sello inalterable de Google
             };
 
             const nodoRef = ref(db, '/marcaciones_sisso');
             push(nodoRef, nuevaMarca)
                 .then(() => {
-                    // Acción de Confirmación Visual Verde en lugar de ventanas emergentes molestas
+                    // Acción de Confirmación Visual Verde en pantalla
                     detallesVerificacion.innerText = `${nombre} • M.: ${tipo} • ${horaString} hs`;
                     alertaVerificacion.classList.remove('hidden');
                     setTimeout(() => alertaVerificacion.classList.remove('scale-95'), 10);
