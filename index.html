@@ -4,6 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>INSSO - Registro de Asistencia</title>
+    
+    <!-- CONFIGURACIÓN PWA (Icono y App para Android e iOS) -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#020617">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="INSSO">
+    <link rel="apple-touch-icon" href="logo-insso.png">
+
     <!-- Tailwind CSS (Tema Claro Avanzado) -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -60,7 +69,7 @@
             </div>
             <h2 class="text-xl font-black uppercase tracking-wide">Acceso Restringido</h2>
             <p id="texto-bloqueo-gps" class="text-sm text-slate-400 leading-relaxed font-medium">
-                Para utilizar el Sistema de Marcación Digital de <span class="text-white font-bold">INSSO</span>, es obligatorio permitir y activar los permisos de ubicación GPS en su dispositivo móvil.
+                Para utilizar el Sistema de Marcación Digital de <span class="text-white font-bold">INSSO</span>, es obligatorio activar la ubicación.
             </p>
             <div class="pt-2">
                 <button onclick="window.location.reload();" class="bg-white text-slate-950 font-bold px-6 py-2.5 rounded-xl text-xs uppercase tracking-wider shadow-md hover:bg-slate-100 active:scale-95 transition-all">
@@ -216,6 +225,14 @@
             }, 2500); 
         });
 
+        // REGISTRO DE SERVICE WORKER BÁSICO (REQUISITO PARA LOGO EN ANDROID)
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('data:text/javascript;base64,c2VsZi5hZGRFdmVudExpc3RlbmVyKCdmZXRjaCcsIGV2ZW50ID0+IHt9KTs=')
+                .catch(() => {});
+            });
+        }
+
         // MONITOREO DE RED
         function actualizarEstadoRed() {
             estaOnline = navigator.onLine;
@@ -279,15 +296,13 @@
                 inicializarMapa(lat, lon);
             }, (error) => {
                 if (esDispositivoMovil) {
-                    // EN TELÉFONO SE BLOQUEA CON INSTRUCCIÓN EXPLICITA
                     textoBloqueoGps.innerHTML = `Para utilizar el Sistema de Marcación Digital de <span class="text-white font-bold">INSSO</span>, es obligatorio activar la ubicación. <br><br><span class="text-amber-400 font-bold">👉 Por favor, deslice hacia abajo su pantalla y active el icono de Ubicación (GPS) en la barra de ajustes rápidos de su teléfono.</span>`;
                     bloqueoGps.classList.remove('hidden');
                     bloqueoGps.classList.add('flex');
                     btnEntrada.disabled = true;
                     btnSalida.disabled = true;
                 } else {
-                    // EN PC NO BLOQUEA EL ACCESO TOTAL, DA ACCESO DE CORTESÍA POR IP/RED
-                    coordenadasActuales = "-25.2637,-57.5759"; // Coordenadas aproximadas por defecto
+                    coordenadasActuales = "-25.2637,-57.5759"; 
                     geoStatus.innerHTML = `⚠️ Red PC Activa`;
                     geoStatus.className = "text-[10px] font-bold text-amber-400 bg-slate-900/90 px-2 py-0.5 rounded-full border border-amber-800 flex items-center gap-1 shadow-sm";
                     btnEntrada.disabled = false;
