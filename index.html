@@ -3,160 +3,136 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SISSO INGENIERÍA - Control de Asistencia</title>
-    <!-- Tailwind CSS -->
+    <title>INSSO - Registro de Asistencia</title>
+    <!-- Tailwind CSS (Tema Claro Avanzado) -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <!-- Leaflet CSS para el Mapa -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
         body { font-family: 'Inter', sans-serif; }
-        .scan-line {
-            animation: scan 2.5s linear infinite;
+        #map { height: 160px; width: 100%; border-radius: 14px; }
+        
+        /* Patrón Geométrico de Ingeniería para Fondo de Pantalla Completa */
+        .bg-flayer-ingenieria {
+            background-color: #f8fafc;
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(20, 184, 166, 0.06) 0px, transparent 50%),
+                radial-gradient(at 50% 0%, rgba(14, 165, 233, 0.04) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(241, 245, 249, 0.8) 0px, transparent 70%),
+                linear-gradient(90deg, rgba(203, 213, 225, 0.15) 1px, transparent 1px),
+                linear-gradient(180deg, rgba(203, 213, 225, 0.15) 1px, transparent 1px);
+            background-size: 100% 100%, 100% 100%, 100% 100%, 30px 30px, 30px 30px;
         }
-        @keyframes scan {
-            0%, 100__ { top: 0%; opacity: 0.3; }
-            50% { top: 100%; opacity: 0.8; }
-        }
-        /* Ajuste para redondear el mapa de Leaflet */
-        #map { z-index: 1; }
     </style>
 </head>
-<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col justify-between p-4 selection:bg-teal-500 selection:text-slate-900">
+<body class="bg-flayer-ingenieria min-h-screen flex flex-col items-center justify-between p-4 selection:bg-teal-500 selection:text-white relative overflow-x-hidden">
 
-    <!-- Encabezado Principal de SISSO -->
-    <header class="w-full max-w-md mx-auto text-center mt-2">
-        <div class="inline-flex items-center gap-2 bg-slate-800 border border-slate-700 px-4 py-1.5 rounded-full mb-2 shadow-inner">
-            <span class="flex h-2 w-2 relative">
-                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-teal-400 opacity-75"></span>
-                <span class="relative inline-flex rounded-full h-2 w-2 bg-teal-500"></span>
-            </span>
-            <span class="text-xs font-semibold uppercase tracking-wider text-teal-400">Terminal Biométrica v3.0</span>
-        </div>
-        <h1 class="text-2xl font-extrabold tracking-tight bg-gradient-to-r from-white via-slate-200 to-slate-400 bg-clip-text text-transparent">
-            SISSO INGENIERÍA
+    <!-- MARCA CENTRAL EN TODA LA PANTALLA (TEXTO EN EL FLAYER DE FONDO) -->
+    <div class="absolute inset-0 flex flex-col items-center justify-start pt-12 pointer-events-none select-none z-0 px-6 text-center">
+        <h1 class="text-4xl md:text-5xl font-extrabold tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-slate-800 via-teal-950 to-slate-900 drop-shadow-sm uppercase">
+            INSSO
         </h1>
-    </header>
+        <div class="h-0.5 w-16 bg-gradient-to-r from-teal-500 to-sky-500 my-2 rounded-full"></div>
+        <p class="text-[11px] md:text-xs font-bold tracking-[0.3em] text-slate-400 uppercase">
+            Consultoría e Ingeniería
+        </p>
+    </div>
 
-    <!-- Contenedor de la Aplicación Móvil -->
-    <main class="w-full max-w-md mx-auto bg-slate-800/80 backdrop-blur-md border border-slate-700/60 rounded-3xl p-5 shadow-2xl my-3 relative overflow-hidden">
+    <!-- CONTENEDOR PRINCIPAL DE LA APLICACIÓN (CUBRE EL CONTENIDO) -->
+    <main class="w-full max-w-md bg-white/90 backdrop-blur-md border border-slate-200/80 shadow-2xl rounded-[28px] p-6 mt-36 mb-auto space-y-5 z-10 transition-all">
         
-        <!-- Selección de Personal -->
-        <div class="mb-4">
-            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">Colaborador Industrial:</label>
-            <div class="relative">
-                <select id="emple0-select" class="w-full bg-slate-950/80 border border-slate-700 rounded-xl px-4 py-3 text-slate-200 font-medium focus:outline-none focus:border-teal-500 appearance-none cursor-pointer transition-all">
-                    <option value="Ayudante Técnico 1">Ayudante Técnico 1</option>
-                    <option value="Personal de Apoyo 2">Personal de Apoyo 2</option>
-                </select>
-                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-400">
-                    <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
-                </div>
-            </div>
-        </div>
+        <!-- ENCABEZADO INTERNO DE LA APP -->
+        <header class="text-center space-y-1">
+            <p class="text-[10px] font-bold uppercase tracking-[0.15em] text-teal-600 bg-teal-50 border border-teal-100 px-3 py-1 rounded-full inline-block mx-auto">
+                Sistema de Marcación Digital
+            </p>
+        </header>
 
-        <!-- Visor Face ID (Cámara Real en Vivo) -->
-        <div class="relative w-full aspect-square bg-slate-950 border border-slate-700/80 rounded-2xl flex flex-col items-center justify-center overflow-hidden shadow-inner mb-4">
-            
-            <!-- Video de la cámara frontal -->
-            <video id="webcam" autoplay playsinline muted class="absolute inset-0 w-full h-full object-cover transform -scale-x-100 hidden"></video>
-            
-            <!-- Silueta guía tipo iPhone FaceID -->
-            <div id="face-guideline" class="absolute inset-0 border-4 border-dashed border-slate-700/50 rounded-2xl m-8 pointer-events-none flex items-center justify-center">
-                <span class="text-[11px] text-slate-500 font-medium uppercase tracking-widest text-center px-4">Ubique su rostro frente a la cámara</span>
-            </div>
+        <!-- SECCIÓN DE FECHA Y HORA EN TIEMPO REAL -->
+        <section class="bg-slate-50 border border-slate-200/60 rounded-2xl p-4 text-center shadow-inner">
+            <div id="live-date" class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-0.5">Cargando fecha...</div>
+            <div id="live-time" class="text-3xl font-bold text-slate-900 font-mono tracking-tight">00:00:00</div>
+        </section>
 
-            <!-- Línea de escaneo láser interactiva -->
-            <div id="laser-line" class="absolute left-0 w-full h-0.5 bg-gradient-to-r from-transparent via-teal-400 to-transparent shadow-[0_0_8px_#2dd4bf] z-10 hidden scan-line"></div>
-            
-            <!-- Estado en tiempo real del GPS -->
-            <div id="camera-overlay" class="absolute bottom-3 inset-x-3 bg-slate-900/95 border border-slate-800 text-center py-2 rounded-xl backdrop-blur-sm z-10">
-                <span id="gps-status" class="text-xs font-semibold text-amber-500 tracking-wide flex items-center justify-center gap-1.5">
-                    <svg class="animate-spin h-3.5 w-3.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-                    Validando Identidad y Ubicación...
+        <!-- CAMPO DEL COLABORADOR -->
+        <section class="space-y-1.5">
+            <label for="input-empleado" class="text-xs font-bold uppercase tracking-wider text-slate-400 pl-1">Nombre del Colaborador</label>
+            <input type="text" id="input-empleado" placeholder="Ej. Juan Pérez" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-900 font-medium placeholder:text-slate-400 focus:outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-100 transition-all text-sm shadow-sm">
+        </section>
+
+        <!-- SECCIÓN DEL MAPA (TEMA CLARO) -->
+        <section class="space-y-1.5">
+            <div class="flex justify-between items-center pl-1">
+                <label class="text-xs font-bold uppercase tracking-wider text-slate-400">Ubicación GPS Actual</label>
+                <span id="geo-status" class="text-[10px] font-bold text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200 flex items-center gap-1">
+                    <span class="h-1.5 w-1.5 rounded-full bg-amber-500 animate-pulse"></span> Buscando señal...
                 </span>
             </div>
-        </div>
+            <div id="map" class="border border-slate-200 shadow-sm bg-slate-100"></div>
+        </section>
 
-        <!-- Módulo de Mapa en Vivo -->
-        <div class="mb-4">
-            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">Geolocalización Confirmada:</label>
-            <div id="map" class="w-full h-32 bg-slate-950 border border-slate-700/80 rounded-xl overflow-hidden shadow-inner"></div>
-        </div>
-
-        <!-- Botones de Acción -->
-        <div class="grid grid-cols-2 gap-3">
-            <button id="btn-entrada" class="active:scale-[0.98] transition-all bg-gradient-to-br from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 disabled:opacity-30 text-slate-950 font-bold py-3.5 px-4 rounded-xl flex flex-col items-center justify-center gap-0.5 shadow-lg shadow-emerald-950/20">
-                <span class="text-sm uppercase tracking-wider">Entrada</span>
-                <span class="text-[9px] font-normal opacity-80">Iniciar Turno</span>
+        <!-- BOTONES DE ACCIÓN (ENTRADA / SALIDA) -->
+        <footer class="grid grid-cols-2 gap-4 pt-1">
+            <button id="btn-entrada" disabled class="disabled:opacity-40 bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white font-bold py-3.5 rounded-xl transition-all shadow-md shadow-emerald-100 flex flex-col items-center justify-center gap-0.5 text-sm">
+                <span class="text-base">🛫</span> Registrar Entrada
             </button>
-            <button id="btn-salida" class="active:scale-[0.98] transition-all bg-gradient-to-br from-rose-500 to-red-600 hover:from-rose-600 hover:to-red-700 disabled:opacity-30 text-white font-bold py-3.5 px-4 rounded-xl flex flex-col items-center justify-center gap-0.5 shadow-lg shadow-rose-950/20">
-                <span class="text-sm uppercase tracking-wider">Salida</span>
-                <span class="text-[9px] font-normal opacity-80">Finalizar</span>
+            <button id="btn-salida" disabled class="disabled:opacity-40 bg-rose-600 hover:bg-rose-700 active:scale-95 text-white font-bold py-3.5 rounded-xl transition-all shadow-md shadow-rose-100 flex flex-col items-center justify-center gap-0.5 text-sm">
+                <span class="text-base">🛬</span> Registrar Salida
             </button>
-        </div>
+        </footer>
 
-        <!-- Mensaje de estado -->
-        <div id="status-message" class="text-xs font-medium text-center text-slate-400 min-h-[20px] mt-3"></div>
     </main>
 
-    <!-- Pie de página -->
-    <footer class="w-full text-center pb-1">
-        <p class="text-[9px] text-slate-500 tracking-wider uppercase">© 2026 SISSO INGENIERÍA • Control de Seguridad e Higiene</p>
+    <!-- PIE DE PÁGINA SIMPLE -->
+    <footer class="text-[10px] font-semibold text-slate-400 tracking-wider text-center pt-6 z-10 uppercase">
+        &copy; 2026 INSSO Consultoría e Ingeniería.
     </footer>
 
-    <!-- Leaflet JS para Manejo de Mapas -->
+    <!-- Leaflet JS para el mapa -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-
-    <!-- LÓGICA INTEGRADA CON REALTIME DATABASE -->
+    
+    <!-- LÓGICA DE FIREBASE Y GPS -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
-        import { getDatabase, ref, push, set } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
+        import { getDatabase, ref, push, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
 
+        // Configuración de tu base de datos
         const firebaseConfig = {
-            apiKey: "AIzaSyB9OPdG6MHHcs6NbIg9bBBDnmTJyquG9wg",
-            authDomain: "marcacion-insso.firebaseapp.com",
-            databaseURL: "https://marcacion-insso-default-rtdb.firebaseio.com/",
-            projectId: "marcacion-insso",
-            storageBucket: "marcacion-insso.firebasestorage.app",
-            messagingSenderId: "116053257095",
-            appId: "1:116053257095:web:647eb8bc92e6bdde010122",
-            measurementId: "G-5XSG9VZRS4"
+            databaseURL: "https://marcacion-insso-default-rtdb.firebaseio.com"
         };
 
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
-        let currentCoords = null;
+
+        // Elementos de la interfaz
+        const liveTime = document.getElementById('live-time');
+        const liveDate = document.getElementById('live-date');
+        const inputEmpleado = document.getElementById('input-empleado');
+        const geoStatus = document.getElementById('geo-status');
+        const btnEntrada = document.getElementById('btn-entrada');
+        const btnSalida = document.getElementById('btn-salida');
+
+        let coordenadasActuales = null;
         let map = null;
         let marker = null;
 
-        const bEntrada = document.getElementById('btn-entrada');
-        const bSalida = document.getElementById('btn-salida');
-        const video = document.getElementById('webcam');
-
-        bEntrada.disabled = true;
-        bSalida.disabled = true;
-
-        // Inicializar Cámara Frontal de Forma Automática
-        async function iniciarCamara() {
-            try {
-                const stream = await navigator.mediaDevices.getUserMedia({ 
-                    video: { facingMode: "user" }, 
-                    audio: false 
-                });
-                video.srcObject = stream;
-                video.classList.remove('hidden');
-            } catch (err) {
-                console.log("Cámara inaccesible o denegada: ", err);
-                document.getElementById('face-guideline').innerHTML = `<span class="text-xs text-rose-400 font-semibold px-4 text-center">⚠️ Permita acceso a la cámara frontal</span>`;
-            }
+        // RELOJ EN TIEMPO REAL (FECHA Y HORA ACTUALES)
+        function actualizarReloj() {
+            const ahora = new Date();
+            liveTime.innerText = ahora.toLocaleTimeString('es-ES', { hour12: false });
+            liveDate.innerText = ahora.toLocaleDateString('es-ES', { 
+                weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' 
+            });
         }
+        setInterval(actualizarReloj, 1000);
+        actualizarReloj();
 
-        // Inicializar Mapa de Leaflet
-        function renderizarMapa(lat, lon) {
+        // INICIALIZACIÓN DEL MAPA CLARO (Estilo estándar de OpenStreetMap)
+        function inicializarMapa(lat, lon) {
             if (!map) {
                 map = L.map('map', { zoomControl: false }).setView([lat, lon], 16);
-                L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                     attribution: '&copy; OpenStreetMap'
                 }).addTo(map);
                 marker = L.marker([lat, lon]).addTo(map);
@@ -166,89 +142,67 @@
             }
         }
 
-        // Captura e Integración de Geolocalización Remota
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition((position) => {
+        // GEOLOCALIZACIÓN GPS ACTIVA
+        if ("geolocation" in navigator) {
+            navigator.geolocation.watchPosition((position) => {
                 const lat = position.coords.latitude;
                 const lon = position.coords.longitude;
-                currentCoords = `${lat}, ${lon}`;
+                coordenadasActuales = `${lat},${lon}`;
+
+                geoStatus.innerHTML = `<span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span> GPS Activo`;
+                geoStatus.className = "text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200 flex items-center gap-1";
                 
-                renderizarMapa(lat, lon);
-                marcarGpsExitoso("📍 Identidad y Ubicación Verificadas");
-                iniciarCamara();
+                btnEntrada.disabled = false;
+                btnSalida.disabled = false;
+
+                inicializarMapa(lat, lon);
             }, (error) => {
-                if (window.location.protocol === 'file:') {
-                    const lat = -25.2865;
-                    const lon = -57.6145;
-                    currentCoords = `${lat}, ${lon}`;
-                    
-                    renderizarMapa(lat, lon);
-                    marcarGpsExitoso("Modo de Prueba Local (Ubicación Simulada)");
-                    iniciarCamara();
-                } else {
-                    document.getElementById('gps-status').innerHTML = "❌ GPS o Permisos Desactivados";
-                    document.getElementById('gps-status').className = "text-xs font-semibold text-rose-500 tracking-wide flex items-center justify-center gap-1.5";
-                }
-            }, { enableHighAccuracy: true });
+                console.error(error);
+                geoStatus.innerHTML = `⚠️ Error de GPS`;
+                geoStatus.className = "text-[10px] font-bold text-rose-600 bg-rose-50 px-2 py-0.5 rounded-full border border-rose-200 flex items-center gap-1";
+            }, {
+                enableHighAccuracy: true,
+                maximumAge: 0
+            });
+        } else {
+            geoStatus.innerText = "❌ GPS no soportado";
         }
 
-        function marcarGpsExitoso(mensaje) {
-            document.getElementById('gps-status').innerHTML = `
-                <svg class="h-4 w-4 text-teal-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-                ${mensaje}
-            `;
-            document.getElementById('gps-status').className = "text-xs font-semibold text-teal-400 tracking-wide flex items-center justify-center gap-1.5";
-            bEntrada.disabled = false;
-            bSalida.disabled = false;
+        // FUNCIÓN ENVIAR MARCACIÓN A FIREBASE
+        function registrarMarcacion(tipo) {
+            const nombre = inputEmpleado.value.trim();
+            if (!nombre) {
+                alert("Por favor, ingrese su nombre antes de marcar.");
+                return;
+            }
+
+            const ahora = new Date();
+            const fechaString = ahora.toLocaleDateString('es-ES', { year: 'numeric', month: '2-digit', day: '2-digit' });
+            const horaString = ahora.toLocaleTimeString('es-ES', { hour12: false });
+
+            const nuevaMarca = {
+                empleado: nombre,
+                empresa: "INSSO CONSULTORIA E INGENIERIA",
+                tipo: tipo,
+                coordenadas: coordenadasActuales,
+                fecha: fechaString,
+                hora: horaString,
+                timestamp: serverTimestamp()
+            };
+
+            const nodoRef = ref(db, '/marcaciones_sisso');
+            push(nodoRef, nuevaMarca)
+                .then(() => {
+                    alert(`¡${tipo} registrada con éxito!\nFecha: ${fechaString}\nHora: ${horaString}`);
+                    inputEmpleado.value = "";
+                })
+                .catch((err) => {
+                    alert("Error al guardar en base de datos: " + err.message);
+                });
         }
 
-        // Animación FaceID Móvil y Subida
-        async function ejecutarBiometriaYGuardar(tipo) {
-            const empleado = document.getElementById('emple0-select').value;
-            const statusMessage = document.getElementById('status-message');
-            const laser = document.getElementById('laser-line');
-            const guideline = document.getElementById('face-guideline');
-
-            bEntrada.disabled = true;
-            bSalida.disabled = true;
-            laser.classList.remove('hidden');
-            guideline.classList.add('border-teal-400', 'scale-[1.02]');
-            statusMessage.innerHTML = `<span class="text-teal-400 animate-pulse">Escaneando rostro Face ID... No se mueva</span>`;
-
-            setTimeout(async () => {
-                try {
-                    const ahora = new Date();
-                    const fechaLocal = ahora.toLocaleDateString('es-PY', { timeZone: 'America/Asuncion' });
-                    const horaLocal = ahora.toLocaleTimeString('es-PY', { timeZone: 'America/Asuncion', hour12: false });
-
-                    const listaMarcacionesRef = ref(db, 'marcaciones_sisso');
-                    const nuevaMarcacionRef = push(listaMarcacionesRef);
-
-                    await set(nuevaMarcacionRef, {
-                        empleado: empleado,
-                        fecha: fechaLocal,
-                        hora: horaLocal,
-                        tipo: tipo,
-                        coordenadas: currentCoords,
-                        verificacion: "CAMERA_FACEID_OK",
-                        empresa: "SISSO INGENIERIA",
-                        timestamp: ahora.getTime()
-                    });
-
-                    statusMessage.innerHTML = `<span class="text-teal-400 font-bold">✓ Marcación exitosa registrada a las ${horaLocal}</span>`;
-                } catch (err) {
-                    statusMessage.innerHTML = `<span class="text-rose-400 font-bold">Error de red: ${err.message}</span>`;
-                } finally {
-                    laser.classList.add('hidden');
-                    guideline.classList.remove('border-teal-400', 'scale-[1.02]');
-                    bEntrada.disabled = false;
-                    bSalida.disabled = false;
-                }
-            }, 2500);
-        }
-
-        bEntrada.addEventListener('click', () => ejecutarBiometriaYGuardar('ENTRADA'));
-        bSalida.addEventListener('click', () => ejecutarBiometriaYGuardar('SALIDA'));
+        btnEntrada.addEventListener('click', () => registrarMarcacion("ENTRADA"));
+        btnSalida.addEventListener('click', () => registrarMarcacion("SALIDA"));
     </script>
 </body>
 </html>
